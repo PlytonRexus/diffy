@@ -4,28 +4,29 @@ FROM node:16.7.0
 RUN mkdir -p /diffy/backend
 RUN mkdir -p /diffy/frontend
 
-RUN npm install -g typescript@4.3.5
+RUN npm install -g typescript@4.3.5 --legacy-peer-deps
 # Angular stuff (cli and dev)
-RUN npm install -g @angular/cli@12.2.2
+RUN npm install -g @angular/cli@12.2.2 --legacy-peer-deps
 
-# Frontend
-COPY ./frontend/ /diffy/frontend/
-WORKDIR /diffy/frontend
-RUN npm install --legacy-peer-deps
-RUN npm run-script build
-
-# Backend
+COPY ./models/ /diffy/models/
 COPY ./backend/ /diffy/backend/
-WORKDIR /diffy/backend
-RUN npm install
-RUN npm run-script build
+COPY ./frontend/ /diffy/frontend/
 
 # Models
-COPY ./models/ /diffy/models/
 WORKDIR /diffy/models
 RUN npm install
-RUN npm run-script build
+RUN npm run build
 
-# By default expose port 3000 and run `node /diffy/src/app.js` when executing the image
-EXPOSE 3000
+# Frontend
+WORKDIR /diffy/frontend
+RUN npm install --legacy-peer-deps
+RUN npm run build
+
+# Backend
+WORKDIR /diffy/backend
+RUN npm install
+RUN npm run build
+
+# By default expose port 30000 and run `node /diffy/src/app.js` when executing the image
+EXPOSE 30000
 CMD ["npm", "start"]
